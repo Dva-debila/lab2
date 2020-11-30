@@ -1,0 +1,74 @@
+%%Всякие данные входные с настройками. Лучше перед этим калибровку
+%%запустить
+Settings = importdata("Calibration\settings.txt");
+Imp01 = importdata("Calibration\experimentData\01mm.dat");
+Imp11 = importdata("Calibration\experimentData\11mm.dat");
+Imp21 = importdata("Calibration\experimentData\21mm.dat");
+Imp31 = importdata("Calibration\experimentData\31mm.dat");
+Imp41 = importdata("Calibration\experimentData\41mm.dat");
+Imp51 = importdata("Calibration\experimentData\51mm.dat");
+Imp61 = importdata("Calibration\experimentData\61mm.dat");
+Imp71 = importdata("Calibration\experimentData\71mm.dat");
+Data(:,1) = Imp01(:,2);
+Data(:,2) = Imp11(:,2);
+Data(:,3) = Imp21(:,2);
+Data(:,4) = Imp31(:,2);
+Data(:,5) = Imp41(:,2);
+Data(:,6) = Imp51(:,2);
+Data(:,7) = Imp61(:,2);
+Data(:,8) = Imp71(:,2);
+P = Data*Settings(1)+Settings(2);
+
+
+%%расстояние
+dx = 0.25;
+x = Imp01(:,1)' * 0.25;
+
+%%визуализация данных
+hold all;
+for i = 1:8
+    plot(x,P(:,i));
+end
+legend('1 мм','11 мм','21 мм','31 мм','41 мм','51 мм','61 мм','71 мм');
+grid on;
+xlabel("Расстояние вдоль сечения струи, мм");
+ylabel("\DeltaP, Па");
+title(["Сечения затопленной струи","на разном расстоянии от сопла"]);
+saveas(gca,"pressure.png");
+hold off;
+
+xCentered = zeros(size(P));
+offset = 50;
+for i = 1:8
+    right = x(find(P(:,i)>offset, 1, 'last'));
+    left = x(find(P(:,i)>offset, 1));
+    center = left + (right - left)/2;
+    xCentered(:, i) = x - center;
+    plot(xCentered(:,i),P(:,i));
+    hold on;
+end
+legend('1 мм','11 мм','21 мм','31 мм','41 мм','51 мм','61 мм','71 мм');
+grid on;
+xlabel(["Расстояние вдоль сечения струи","относительно её центра, мм"]);
+ylabel("\DeltaP, Па");
+title(["Центрированные сечения затопленной струи","на разном расстоянии от сопла"]);
+saveas(gca,"centered.png");
+hold off;
+
+for i = 1:8
+    for j = 1:size(P(:,1))
+        if P(j,i) < 0
+            P(j,i) = 0;
+        end
+    end
+    Z(:,i) = ones(size(P(:,1)))*(10*i-9);
+end
+U = sqrt(10 * P / 6);
+surf(Z, xCentered, U);
+colorbar;
+grid on;
+title(["Распределение скоростей потока","в затопленной струе"]);
+xlabel("z, мм");
+ylabel("x, мм");
+zlabel("скорость потока, м/с");
+saveas(gca,"surface.png")
