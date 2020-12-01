@@ -71,7 +71,7 @@ title(["Распределение скоростей потока","в зато
 xlabel("z, мм");
 ylabel("x, мм");
 zlabel("скорость потока, м/с");
-saveas(gca,"surface.png");
+saveas(gca,"surface.png")
 
 for i = 1:8
     y0 = U(:,i).* abs(xCentered(:,i));
@@ -80,8 +80,4 @@ for i = 1:8
 end
 Q = Q'/2;
 plot(Z(1,:),Q,'-o','LineWidth',2);
-grid on;
 title("Расход затопленной струи");
-xlabel("z, мм");
-ylabel("Q, м^3/с");
-saveas(gca,"flow.png");
